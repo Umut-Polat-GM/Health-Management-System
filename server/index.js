@@ -11,6 +11,11 @@ const app = express();
 app.use(bodyParser.json({limit:"30 mb", extended:true}))
 app.use(bodyParser.urlencoded({limit:"30 mb", extended:true}))
 app.use(cookieParser()) 
+app.use(cors())
+app.get("/",(req,res)=>{
+    res.send("hello world")
+})
+
 
 db();
 
