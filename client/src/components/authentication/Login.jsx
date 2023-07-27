@@ -1,55 +1,55 @@
-import { Grid,Paper, Avatar, TextField, Button, Typography,Link } from '@mui/material'
+import { Grid, Paper, Avatar, TextField, Button, Typography, Link } from '@mui/material';
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import Navbar from '../Navbar';
 import AuthBackground from '../../assets/image/auth/AuthBackGround';
-import { useState, useEffect } from 'react'
-import { useSelector, useDispatch } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
-import { toast } from 'react-toastify'
-import { login, reset } from '../../store/features/auth/authSlice'
-import Spinner from '../Spinner'
+import { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { login, reset } from '../../store/features/auth/authSlice';
+import Spinner from '../Spinner';
 import * as yup from 'yup';
 
-
-const Login=()=>{
-
+const Login = () => {
+  const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-  })
+  });
 
-  const { email, password } = formData
+  const { email, password } = formData;
 
-  const navigate = useNavigate()
-  const dispatch = useDispatch()
-  const { user, isLoading, isError, isSuccess, message } = useSelector(
-    (state) => state.auth
-  )
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { user, isLoading, isError, isSuccess, message } = useSelector((state) => state.auth);
 
   useEffect(() => {
     if (isError) {
-      toast.error(message)
+      toast.error(message);
     }
 
     if (isSuccess || user) {
-      navigate('/')
+      navigate('/');
     }
 
-    dispatch(reset())
-  }, [user, isError, isSuccess, message, navigate, dispatch])
+    dispatch(reset());
+  }, [user, isError, isSuccess, message, navigate, dispatch]);
 
   const onChange = (e) => {
     setFormData((prevState) => ({
       ...prevState,
       [e.target.name]: e.target.value,
-    }))
-  }
+    }));
+  };
 
   const validationSchema = yup.object().shape({
-    email: yup.string().email('Invalid email').required('Email is required'),
-    password: yup.string().required('Password is required'),
+    email: yup.string().email('Geçersiz e-posta').required('E-posta alanı boş bırakılamaz'),
+    password: yup.string().matches(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+      'Şifre en az 8 karakter uzunluğunda, en az bir küçük harf, bir büyük harf, bir sayı ve bir özel karakter içermelidir.'
+    ).required('Şifre alanı boş bırakılamaz'),
   });
 
   const onSubmit = (e) => {
@@ -65,56 +65,82 @@ const Login=()=>{
         dispatch(login(userData));
       })
       .catch((error) => {
-        const errors = {};
+        const validationErrors = {};
         error.inner.forEach((err) => {
-          errors[err.path] = err.message;
+          validationErrors[err.path] = err.message;
         });
-        // Handle form errors if needed
+        setErrors(validationErrors);
       });
   };
 
   if (isLoading) {
-    return <Spinner />
+    return <Spinner />;
   }
-    const paperStyle={padding :20,height:'60vh',width:450, margin:"100px auto"}
-    const avatarStyle={backgroundColor:'#1bbd7e'}
-    const btnstyle={margin:'8px 0'}
-    return(
-      <><Navbar/>
-      <Grid>
-        <AuthBackground/>
+
+  const paperStyle = { padding: 20, height: 'auto', width: '90%', maxWidth: 400, margin: '20px auto' };
+  const avatarStyle = { backgroundColor: '#1bbd7e' };
+  const btnstyle = { margin: '8px 0' };
+
+  return (
+    <>
+      <Navbar />
+      <AuthBackground />
+      <Grid container justifyContent="center">
         <form onSubmit={onSubmit}>
-          <Paper elevation={10} style={paperStyle} >
-              <Grid align='center'>
-                   <Avatar style={avatarStyle}><LockOutlinedIcon/></Avatar>
-                  <h2>Sign In</h2>
-              </Grid>
-              <TextField sx={{marginTop:"2.5rem"}} label='Email' name='email' value={email} onChange={onChange} placeholder='Enter email' fullWidth required/>
-              <TextField sx={{marginTop:"7px"}} label='Password'name='password' value={password} onChange={onChange} placeholder='Enter password' type='password' fullWidth required/>
-              <FormControlLabel
-                  control={
-                  <Checkbox
-                      name="checkedB"
-                      color="primary"
-                  />
-                  }
-                  label="Remember me"
-               />
-              <Button type='submit' color='primary' variant="contained" style={btnstyle} fullWidth>Sign in</Button>
-              <Typography >
-                   <Link href="#" >
-                      Forgot password ?
+
+          <Paper elevation={10} style={paperStyle}>
+            <Grid align='center'>
+              <Avatar style={avatarStyle}><LockOutlinedIcon /></Avatar>
+              <h2>Sign Up</h2>
+            </Grid>
+            <TextField
+              sx={{ marginTop: '1rem' }}
+              label='Email'
+              name='email'
+              value={email}
+              onChange={onChange}
+              placeholder='Enter email'
+              fullWidth
+              required
+            />
+            {errors.email && <Typography color="error">{errors.email}</Typography>}
+            <TextField
+              sx={{ marginTop: '1rem' }}
+              label='Password'
+              name='password'
+              value={password}
+              onChange={onChange}
+              placeholder='Enter password'
+              type='password'
+              fullWidth
+              required
+            />
+            {errors.password && <Typography color="error">{errors.password}</Typography>}
+            <FormControlLabel
+              control={<Checkbox name="checkedB" color="primary" />}
+              label="Remember me"
+              sx={{ marginTop: '1rem' }}
+            />
+            <Button type='submit' color='primary' variant="contained" style={btnstyle} fullWidth>
+              Sign Up
+            </Button>
+            <Typography sx={{ marginTop: '1rem' }}>
+              <Link href="#">
+                Forgot password?
               </Link>
-              </Typography>
-              <Typography > Do you have an account ?
-                   <Link href="#" >
-                      Sign Up 
+            </Typography>
+            <Typography sx={{ marginTop: '1rem' }}>
+              Do you have an account?
+              <Link href="#">
+                Sign In
               </Link>
-              </Typography>
+            </Typography>
           </Paper>
-          </form>
-      </Grid></>
-    )
+
+        </form>
+      </Grid>
+    </>
+  );
 }
 
-export default Login
+export default Login;

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { login, reset } from '../../store/features/auth/authSlice';
+import { register, reset } from '../../store/features/auth/authSlice';
 import Spinner from '../Spinner';
 import * as yup from 'yup';
 import {
@@ -14,12 +14,10 @@ import {
   Typography,
   Link,
   FormControlLabel,
-  Checkbox,
   Radio,
   RadioGroup,
   FormControl,
   FormLabel,
-  
 } from '@mui/material';
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Navbar from '../Navbar';
@@ -29,8 +27,8 @@ const Login = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    username:"",
-    isDoctor:false
+    username: "",
+    isDoctor: false
   });
 
   const { email, password, username, isDoctor } = formData;
@@ -78,10 +76,11 @@ const Login = () => {
       .validate(formData, { abortEarly: false })
       .then(() => {
         const userData = {
+          username,
           email,
           password,
         };
-        dispatch(login(userData));
+        dispatch(register(userData));
       })
       .catch((error) => {
         const validationErrors = {};
@@ -96,15 +95,15 @@ const Login = () => {
     return <Spinner />;
   }
 
-  const paperStyle = { padding: 20, height: '70vh', width: 450, margin: "50px auto" };
+  const paperStyle = { padding: 20, height: 'auto', width: "90%", maxWidth: 450, margin: "50px auto" }; // responsive stil düzenlemeleri
   const avatarStyle = { backgroundColor: '#1bbd7e' };
   const btnstyle = { margin: '8px 0' };
-  
+
   return (
     <>
       <Navbar />
-      <Grid>
-        <AuthBackground />
+      <AuthBackground />
+      <Grid container justifyContent="center" alignItems="center">  
         <form onSubmit={onSubmit}>
           <Paper elevation={10} style={paperStyle}>
             <Grid align='center'>
@@ -112,7 +111,7 @@ const Login = () => {
               <h2>Sign Up</h2>
             </Grid>
             <TextField
-              sx={{ marginTop: "2.5rem" }}
+              sx={{ marginTop: "1rem", marginBottom: "1rem" }}
               label='UserName'
               name='username'
               value={username}
@@ -123,7 +122,7 @@ const Login = () => {
             />
             {errors.username && <Typography color="error">{errors.username}</Typography>}
             <TextField
-              sx={{ marginTop: "8px" }}
+              sx={{ marginTop: "1rem", marginBottom: "1rem" }}
               label='Email'
               name='email'
               value={email}
@@ -134,7 +133,7 @@ const Login = () => {
             />
             {errors.email && <Typography color="error">{errors.email}</Typography>}
             <TextField
-              sx={{ marginTop: "8px" }}
+              sx={{ marginTop: "1rem", marginBottom: "1rem" }}
               label='Password'
               name='password'
               value={password}
@@ -145,10 +144,9 @@ const Login = () => {
               required
             />
             {errors.password && <Typography color="error">{errors.password}</Typography>}
-          
 
             {/* Radio button for isDoctor */}
-            <FormControl sx={{marginTop:"5px"}} component="fieldset">
+            <FormControl sx={{ marginTop: "1rem", marginBottom: "1rem" }} component="fieldset">
               <FormLabel component="legend">Are you a doctor?</FormLabel>
               <RadioGroup row aria-label="isDoctor" name="isDoctor" value={isDoctor.toString()} onChange={onChange}>
                 <FormControlLabel value="true" control={<Radio />} label="Yes" />
