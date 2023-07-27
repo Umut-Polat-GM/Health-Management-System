@@ -19,6 +19,11 @@ const mongoose = require("mongoose")
         isDoctor: {
             type:Boolean,
             required: false,
+            default: "user"
+        },
+        img: {
+            type:String,
+            required: false,
         },
     },{timestamps: true})
 
