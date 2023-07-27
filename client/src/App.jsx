@@ -1,20 +1,25 @@
-import Navbar from "./components/Navbar";
-import Rightbar from "./components/Rightbar";
-import Feed from "./components/Feed";
-import Sidebar from "./components/Sidebar";
-import { Box, Stack } from "@mui/material";
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import Login from './components/authentication/Login';
+import Register from './components/authentication/Register';
+import Home from './components/Home';
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 function App() {
   return (
-    <Box>
-      <Navbar />
-      <Stack direction="row" spacing={2} justifyContent="space-between">
-        <Sidebar />
-        <Feed />
-        <Rightbar />
-      </Stack>
-    </Box>
+    <><Router>
+      <div className='container'>
+        <Routes>
+          <Route path='/login' element={<Login />} />
+          <Route path='/register' element={<Register />} />
+          <Route path='/' element={<Home />} />
+        </Routes>
+      </div>
+    </Router>
+      <ToastContainer /></>
   );
 }
 
 export default App;
+
+
