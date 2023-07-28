@@ -13,6 +13,7 @@ import Spinner from '../Spinner';
 import * as yup from 'yup';
 
 const Login = () => {
+
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
     email: '',
@@ -25,6 +26,7 @@ const Login = () => {
   const dispatch = useDispatch();
   const { user, isLoading, isError, isSuccess, message } = useSelector((state) => state.auth);
 
+console.log(user)
   useEffect(() => {
     if (isError) {
       toast.error(message);
@@ -46,10 +48,7 @@ const Login = () => {
 
   const validationSchema = yup.object().shape({
     email: yup.string().email('Geçersiz e-posta').required('E-posta alanı boş bırakılamaz'),
-    password: yup.string().matches(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-      'Şifre en az 8 karakter uzunluğunda, en az bir küçük harf, bir büyük harf, bir sayı ve bir özel karakter içermelidir.'
-    ).required('Şifre alanı boş bırakılamaz'),
+    password: yup.string().required('Şifre alanı boş bırakılamaz'),
   });
 
   const onSubmit = (e) => {
@@ -62,7 +61,9 @@ const Login = () => {
           email,
           password,
         };
+       // console.log(userData)
         dispatch(login(userData));
+       
       })
       .catch((error) => {
         const validationErrors = {};
@@ -77,7 +78,7 @@ const Login = () => {
     return <Spinner />;
   }
 
-  const paperStyle = { padding: 20, height: 'auto', width: '90%', maxWidth: 400, margin: '20px auto' };
+  const paperStyle = { padding: 20, height: 'auto', width: '90%', maxWidth: 400, margin: '5rem auto' };
   const avatarStyle = { backgroundColor: '#1bbd7e' };
   const btnstyle = { margin: '8px 0' };
 

@@ -2,7 +2,7 @@ import authService from './authService'
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 
 
-const user = JSON.parse(localStorage.getItem('user'))
+const user = localStorage.getItem('user')
 
 const initialState = {
     user: user ? user : null,
@@ -15,9 +15,10 @@ const initialState = {
 // Register user
 export const register = createAsyncThunk(
     'auth/register',
-    async (user, thunkAPI) => {
+    async (userData, thunkAPI) => {
         try {
-            return await authService.register(user)
+            const response = await authService.registerServ(userData)
+          return response.data;
         } catch (error) {
             const message =
                 (error.response &&
@@ -25,15 +26,18 @@ export const register = createAsyncThunk(
                     error.response.data.message) ||
                 error.message ||
                 error.toString()
+               // console.log("here")
             return thunkAPI.rejectWithValue(message)
         }
     }
 )
 
 // Login user
-export const login = createAsyncThunk('auth/login', async (user, thunkAPI) => {
+export const login = createAsyncThunk('auth/login', async (userData, thunkAPI) => {
     try {
-        return await authService.login(user)
+      console.log("was here")
+        return await authService.loginServ(userData)
+        
     } catch (error) {
         const message =
             (error.response && error.response.data && error.response.data.message) ||
@@ -44,7 +48,7 @@ export const login = createAsyncThunk('auth/login', async (user, thunkAPI) => {
 })
 
 export const logout = createAsyncThunk('auth/logout', async () => {
-    await authService.logout()
+    await authService.logoutServ()
 })
 
 

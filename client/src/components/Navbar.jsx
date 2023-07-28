@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 import { AppBar, Box, InputBase, Toolbar, Typography } from "@mui/material";
 import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
 
+
 const StyledToolBar = styled(Toolbar)({
   display: "flex",
   justifyContent: "space-between",

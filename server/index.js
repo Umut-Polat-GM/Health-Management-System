@@ -12,16 +12,14 @@ app.use(bodyParser.json({limit:"30 mb", extended:true}))
 app.use(bodyParser.urlencoded({limit:"30 mb", extended:true}))
 app.use(cookieParser()) 
 app.use(cors())
-app.get("/",(req,res)=>{
-    res.send("hello world")
-})
+
 
 
 db();
 
-app.use("api/auth",authRoute)
+app.use("/api/users",authRoute)
 
 
 app.listen(process.env.Port, () => {
-    console.log('Server is running on port 3001');
+    console.log('Server is running on port: ', process.env.Port);
 });
