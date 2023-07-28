@@ -16,15 +16,8 @@ const mongoose = require("mongoose")
             type:String,
             required: true,
         },
-        isDoctor: {
-            type:Boolean,
-            required: false,
-            default: "user"
-        },
-        img: {
-            type:String,
-            required: false,
-        },
+        
+        
     },{timestamps: true})
 
     module.exports = mongoose.model("User",userSchema)

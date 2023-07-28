@@ -12,26 +12,20 @@ import {
   TextField,
   Button,
   Typography,
-  Link,
-  FormControlLabel,
-  Radio,
-  RadioGroup,
-  FormControl,
-  FormLabel,
+  Link
 } from '@mui/material';
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Navbar from '../Navbar';
 import AuthBackground from '../../assets/image/auth/AuthBackGround';
 
-const Login = () => {
+const Register = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    username: "",
-    isDoctor: false
+    username: ""
   });
 
-  const { email, password, username, isDoctor } = formData;
+  const { email, password, username } = formData;
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -61,10 +55,7 @@ const Login = () => {
   const validationSchema = yup.object().shape({
     username: yup.string().required('Kullanıcı adı alanı boş bırakılamaz'),
     email: yup.string().email('Geçersiz e-posta').required('E-posta alanı boş bırakılamaz'),
-    password: yup.string().matches(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-      'Şifre en az 8 karakter uzunluğunda, en az bir küçük harf, bir büyük harf, bir sayı ve bir özel karakter içermelidir.'
-    ).required('Şifre alanı boş bırakılamaz'),
+    password: yup.string().required('Şifre alanı boş bırakılamaz'),
   });
 
   const [errors, setErrors] = useState({});
@@ -79,7 +70,9 @@ const Login = () => {
           username,
           email,
           password,
+
         };
+        console.log(userData)
         dispatch(register(userData));
       })
       .catch((error) => {
@@ -103,7 +96,7 @@ const Login = () => {
     <>
       <Navbar />
       <AuthBackground />
-      <Grid container justifyContent="center" alignItems="center">  
+      <Grid container justifyContent="center" alignItems="center">
         <form onSubmit={onSubmit}>
           <Paper elevation={10} style={paperStyle}>
             <Grid align='center'>
@@ -145,15 +138,6 @@ const Login = () => {
             />
             {errors.password && <Typography color="error">{errors.password}</Typography>}
 
-            {/* Radio button for isDoctor */}
-            <FormControl sx={{ marginTop: "1rem", marginBottom: "1rem" }} component="fieldset">
-              <FormLabel component="legend">Are you a doctor?</FormLabel>
-              <RadioGroup row aria-label="isDoctor" name="isDoctor" value={isDoctor.toString()} onChange={onChange}>
-                <FormControlLabel value="true" control={<Radio />} label="Yes" />
-                <FormControlLabel value="false" control={<Radio />} label="No" />
-              </RadioGroup>
-            </FormControl>
-
             <Button type='submit' color='primary' variant="contained" style={btnstyle} fullWidth>Sign in</Button>
             <Typography>
               <Link href="#">
@@ -173,4 +157,4 @@ const Login = () => {
   );
 }
 
-export default Login;
+export default Register;

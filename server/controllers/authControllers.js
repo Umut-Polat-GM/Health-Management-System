@@ -7,12 +7,12 @@ const User = require('../models/userModel.js')
 // @route   POST /api/users
 // @access  Public
 const registerUser = asyncHandler(async (req, res) => {
-  const { name, email, password, isDoctor } = req.body
+  const { username, email, password } = req.body
 
-  if (!name || !email || !password) {
-    res.status(400)
-    throw new Error('Please add all fields')
-  }
+  // if (!name || !email || !password) {
+  //   res.status(400)
+  //   throw new Error('Please add all fields')
+  // }
 
   // Check if user exists
   const userExists = await User.findOne({ email })
@@ -28,10 +28,10 @@ const registerUser = asyncHandler(async (req, res) => {
 
   // Create user
   const user = await User.create({
-    name,
+    username,
     email,
-    password: hashedPassword,
-    isDoctor
+    password: hashedPassword
+    
   })
 
   if (user) {
@@ -40,7 +40,7 @@ const registerUser = asyncHandler(async (req, res) => {
       name: user.name,
       email: user.email,
       token: generateToken(user._id),
-      isDoctor: user.isDoctor
+     
     })
   } else {
     res.status(400)
@@ -62,8 +62,7 @@ const loginUser = asyncHandler(async (req, res) => {
       _id: user.id,
       name: user.name,
       email: user.email,
-      token: generateToken(user._id),
-      isDoctor: user.isDoctor
+      token: generateToken(user._id)
     })
   } else {
     res.status(400)
