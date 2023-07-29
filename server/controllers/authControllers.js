@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
 const asyncHandler = require('express-async-handler')//try cache gerek kalmaz
 const User = require('../models/userModel.js')
+const Doctor = require('../models/userModel.js')
 
 // @desc    Register new user
 // @route   POST /api/users
@@ -69,13 +70,33 @@ const loginUser = asyncHandler(async (req, res) => {
     throw new Error('Invalid credentials')
   }
 })
-
-// @desc    Get user data
-// @route   GET /api/users/me
-// @access  Private
-// const getMe = asyncHandler(async (req, res) => {
-//   res.status(200).json(req.user)
-// })
+//doktor başvuru 
+const applyDoctor = async (req, res) => {
+  try {
+    {userId} req.body.user
+    const newDoctor = await Doctor({ ...req.body, status: "pending" });//admin onaylayacak
+    await newDoctor.save();
+    const user = await User.findOne({ userId });
+    const notification = user.notification;
+    notifcation.push({
+      type: "apply-doctor-request",
+      message: `${newDoctor.firstName} ${newDoctor.lastName} Has Applied For A Doctor Account`,
+     
+    });
+    await User.findByIdAndUpdate(user._id, { notification });
+    res.status(201).send({
+      success: true,
+      message: "Doctor Account Applied SUccessfully",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      error,
+      message: "Error WHile Applying For Doctotr",
+    });
+  }
+};
 
 // Generate JWT
 const generateToken = (id) => {
@@ -87,4 +108,6 @@ const generateToken = (id) => {
 module.exports = {
   registerUser,
   loginUser,
+  applyDoctor,
+
 }

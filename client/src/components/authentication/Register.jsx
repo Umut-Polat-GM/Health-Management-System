@@ -62,7 +62,6 @@ const Register = () => {
 
   const onSubmit = (e) => {
     e.preventDefault();
-
     validationSchema
       .validate(formData, { abortEarly: false })
       .then(() => {
@@ -70,9 +69,7 @@ const Register = () => {
           username,
           email,
           password,
-
         };
-        console.log(userData)
         dispatch(register(userData));
       })
       .catch((error) => {
@@ -137,6 +134,18 @@ const Register = () => {
               required
             />
             {errors.password && <Typography color="error">{errors.password}</Typography>}
+            {/* dosya yukleme kısmı<TextField
+              sx={{ marginTop: "1rem", marginBottom: "1rem" }}
+              
+              name='username'
+              value={username}
+              onChange={onChange}
+              placeholder='Enter email'
+              fullWidth
+              required
+              type='file'
+
+            /> */}
 
             <Button type='submit' color='primary' variant="contained" style={btnstyle} fullWidth>Sign in</Button>
             <Typography>
