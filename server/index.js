@@ -2,9 +2,11 @@ const express  = require("express");
 const cors  = require("cors");
 const cookieParser  = require("cookie-parser");
 const bodyParser  = require("body-parser");
-const dotenv  = require("dotenv").config();
+const dotenv  = require("dotenv");
 const db = require("./config/db.js")
 const authRoute = require("./routes/authRoutes.js")
+const userRoute = require("./routes/userRoutes.js")
+dotenv.config()
 
 const app = express();
 
@@ -17,7 +19,9 @@ app.use(cors())
 
 db();
 
-app.use("/api/users",authRoute)
+app.use("/api/auths",authRoute)
+app.use("/api/users",userRoute)
+
 
 
 app.listen(process.env.Port, () => {
