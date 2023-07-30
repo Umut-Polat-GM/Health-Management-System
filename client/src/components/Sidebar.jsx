@@ -9,13 +9,11 @@ import {
   ListItemText,
   Switch,
 } from "@mui/material";
-import { useState } from "react";
 
-const Sidebar = () => {
-  const [mode, setMode] = useState(false);
-
-  const handleChange = (e) => {
-    setMode(e.target.checked);
+const Sidebar = (prop) => {
+  const { mode, setMode } = prop;
+  const handleChange = () => {
+    setMode(mode === "dark" ? "light" : "dark");
   };
   return (
     <Box flex={1} p={2}>
@@ -62,10 +60,8 @@ const Sidebar = () => {
         </ListItem>
         <ListItem>
           <FormControlLabel
-            label={mode === true ? "Light Mode" : "Dark Mode"}
-            control={<Switch color="secondary" />}
-            checked={mode}
-            onChange={handleChange}
+            label={mode === "light" ? "Light Mode" : "Dark Mode"}
+            control={<Switch color="secondary" onChange={handleChange} />}
           />
         </ListItem>
       </List>
