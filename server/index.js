@@ -6,6 +6,7 @@ const dotenv  = require("dotenv");
 const db = require("./config/db.js")
 const authRoute = require("./routes/authRoutes.js")
 const userRoute = require("./routes/userRoutes.js")
+const adminRoute = require("./routes/adminRoute.js")
 dotenv.config()
 
 const app = express();
@@ -21,6 +22,9 @@ db();
 
 app.use("/api/auths",authRoute)
 app.use("/api/users",userRoute)
+app.use("/api/admin",adminRoute)
+
+
 
 
 

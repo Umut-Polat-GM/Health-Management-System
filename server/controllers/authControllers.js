@@ -10,31 +10,21 @@ const Doctor = require('../models/userModel.js')
 const registerUser = asyncHandler(async (req, res) => {
   const { username, email, password } = req.body
 
-  // if (!name || !email || !password) {
-  //   res.status(400)
-  //   throw new Error('Please add all fields')
-  // }
-
   // Check if user exists
   const userExists = await User.findOne({ email })
-
   if (userExists) {
     res.status(400)
     throw new Error('User already exists')
   }
-
   // Hash password
   const salt = await bcrypt.genSalt(10)
   const hashedPassword = await bcrypt.hash(password, salt)
-
   // Create user
   const user = await User.create({
     username,
     email,
-    password: hashedPassword
-    
+    password: hashedPassword 
   })
-
   if (user) {
     res.status(201).json({
       _id: user.id,
@@ -49,12 +39,9 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 })
 
-// @desc    Authenticate a user
-// @route   POST /api/users/login
-// @access  Public
+
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body
-
   // Check for user email
   const user = await User.findOne({ email })
 
@@ -63,6 +50,7 @@ const loginUser = asyncHandler(async (req, res) => {
       _id: user.id,
       name: user.name,
       email: user.email,
+      isDoctor: user.isDoctor,//
       token: generateToken(user._id)
     })
   } else {
@@ -73,7 +61,7 @@ const loginUser = asyncHandler(async (req, res) => {
 //doktor başvuru 
 const applyDoctor = async (req, res) => {
   try {
-    {userId} req.body.user
+    userId = req.body.userId;
     const newDoctor = await Doctor({ ...req.body, status: "pending" });//admin onaylayacak
     await newDoctor.save();
     const user = await User.findOne({ userId });
@@ -109,5 +97,4 @@ module.exports = {
   registerUser,
   loginUser,
   applyDoctor,
-
 }

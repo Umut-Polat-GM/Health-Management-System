@@ -22,31 +22,30 @@ const doctorSchema = new mongoose.Schema(
         required: true,
         unique: true,//bir kişi tarafından kullanılır
       },
-      address: {
-        type: String,
-        required: true
-      },
+      // address: {
+      //   type: String,
+      //   required: true
+      // },
       
       specialization: {
-        type: String,
+        type: Schema.Types.ObjectId,ref:'Specialization',//clienttan specializationIdın id si gelecek
         required: true
       },
-      experience: {
-        type: String,
-        required: true
-      },
-      feesPerCunsaltation: {
-        type: Number,
-        required: true
-      },
+      img: {
+        type:String,
+    },
+      // experience: {
+      //   type: String,
+      //   required: true
+      // },
       status: {
         type: String,
         default: "pending",
       },
-      timings: {
-        type: Object,
-        required: true
-      },
+      // timings: {
+      //   type: Object,
+      //   required: true
+      // },
     },
     { timestamps: true }
   );
