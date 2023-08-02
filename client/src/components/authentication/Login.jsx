@@ -26,7 +26,7 @@ const Login = () => {
   const dispatch = useDispatch();
   const { user, isLoading, isError, isSuccess, message } = useSelector((state) => state.auth);
 
-console.log(user)
+  console.log(user)
   useEffect(() => {
     if (isError) {
       toast.error(message);
@@ -61,9 +61,9 @@ console.log(user)
           email,
           password,
         };
-       // console.log(userData)
+        // console.log(userData)
         dispatch(login(userData));
-       
+
       })
       .catch((error) => {
         const validationErrors = {};
