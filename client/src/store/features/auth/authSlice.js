@@ -1,8 +1,7 @@
 import authService from './authService'
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 
-
-const user = localStorage.getItem('user')
+const user = JSON.parse(localStorage.getItem('user'))
 
 const initialState = {
   user: user ? user : null,
@@ -20,31 +19,20 @@ export const register = createAsyncThunk(
       const response = await authService.registerServ(userData)
       return response.data;
     } catch (error) {
-      const message =
-        (error.response &&
-          error.response.data &&
-          error.response.data.message) ||
-        error.message ||
-        error.toString()
-      // console.log("here")
-      return thunkAPI.rejectWithValue(message)
+    
+      return thunkAPI.rejectWithValue( error.toString())
     }
   }
 )
 export const doctorRegister = createAsyncThunk(
-  'auth/ApplyDoctorRegister',
+  'auth/apply-doctor',
   async (userData, thunkAPI) => {
     try {
-      const response = await authService.registerServ(userData, user.token)
-      return response.data;
-    } catch (error) {
-      const message =
-        (error.response &&
-          error.response.data &&
-          error.response.data.message) ||
-        error.message ||
-        error.toString()
-      return thunkAPI.rejectWithValue(message)
+     return await authService.doctorRegisterServ(userData, user.token)//buraya user?.token yazılabilir kontrol et
+    }
+    catch (error) {     
+      console.log(error)
+      return thunkAPI.rejectWithValue( error.toString())
     }
   }
 )
@@ -52,13 +40,11 @@ export const doctorRegister = createAsyncThunk(
 // Login user
 export const login = createAsyncThunk('auth/login', async (userData, thunkAPI) => {
   try {
-    return await authService.loginServ(userData)
+    const response = await authService.loginServ(userData);
+    return response.data
   }
   catch (error) {
-    const message =
-      (error.response && error.response.data && error.response.data.message) ||
-      error.message ||
-      error.toString()
+    const message = `login işlemi başarısız oldu: ${error}`
     return thunkAPI.rejectWithValue(message)
   }
 })
