@@ -1,8 +1,9 @@
 const User = require("../models/userModel");
 const Specialization = require("../models/specializationModel.js");
+const asyncWrapper = require('../middlewares/async.js')
 
 
-const getAllNotification = async (req, res) => {
+const getAllNotification = asyncWrapper(async (req, res) => {
   try {
     const user = await User.findOne({ _id: req.body.userId });
     const seennotification = user.seennotification;
@@ -24,9 +25,9 @@ const getAllNotification = async (req, res) => {
       error,
     });
   }
-};
+})
 
-const deleteAllNotification = async (req, res) => {
+const deleteAllNotification = asyncWrapper(async (req, res) => {
   try {
     const user = await User.findOne({ _id: req.body.userId });
     user.notifcation = [];
@@ -46,9 +47,8 @@ const deleteAllNotification = async (req, res) => {
       error,
     });
   }
-};
-
-const getAllSpecialization = async (req, res) => {
+})
+const getAllSpecialization = asyncWrapper(async (req, res) => {
   try {
     const specialization = await Specialization.find()
 
@@ -64,8 +64,7 @@ const getAllSpecialization = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error })
   }
-};
-
+})
 
 module.exports = {
   getAllNotification,

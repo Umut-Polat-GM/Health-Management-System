@@ -81,7 +81,6 @@ const DoctorRegister = () => {
   };
 
 
-
   const validationSchema = yup.object().shape({
     firstName: yup.string().required('firstname adı alanı boş bırakılamaz'),
     lastName: yup.string().required('lastname adı alanı boş bırakılamaz'),

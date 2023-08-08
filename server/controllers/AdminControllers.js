@@ -1,7 +1,8 @@
 const Specialization = require("../models/specializationModel.js")
+const asyncWrapper = require('../middlewares/async.js')
 
 
-const addSpesialization = async (req, res) => {//doctor catrgory
+const addSpesialization = asyncWrapper(async (req, res) => {//doctor catrgory
     try {
         const { specialization } = req.body
         if (!req.body) {
@@ -21,7 +22,7 @@ const addSpesialization = async (req, res) => {//doctor catrgory
         });
     }
 }
-
+)
 
 module.exports = {
     addSpesialization,

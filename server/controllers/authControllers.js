@@ -1,16 +1,14 @@
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
-const asyncHandler = require('express-async-handler')//try cache gerek kalmaz
+// const asyncHandler = require('express-async-handler')//try cache gerek kalmaz
 const User = require('../models/userModel.js')
 const Doctor = require('../models/doctorModel.js')
 const Specialization = require('../models/specializationModel.js')
+const asyncWrapper = require('../middlewares/async.js')
 
-// @desc    Register new user
-// @route   POST /api/users
-// @access  Public
-const registerUser = asyncHandler(async (req, res) => {
+const registerUser = asyncWrapper(async (req, res) => {
   const { username, email, password } = req.body
-  // Check if user exists
+
   const userExists = await User.findOne({ email })
   if (userExists) {
     res.status(400)
@@ -27,7 +25,6 @@ const registerUser = asyncHandler(async (req, res) => {
   })
   if (user) {
     res.status(201).json({
-      _id: user._id,
       name: user.username,
       email: user.email,
       token: generateToken(user._id),
@@ -39,17 +36,17 @@ const registerUser = asyncHandler(async (req, res) => {
 })
 
 
-const loginUser = asyncHandler(async (req, res) => {
+const loginUser = asyncWrapper(async (req, res) => {
   const { email, password } = req.body
-  // Check for user email
   const user = await User.findOne({ email })
 
   if (user && (await bcrypt.compare(password, user.password))) {
     res.status(201).json({
-      _id: user._id,
+     
       name: user.username,
       email: user.email,
       isDoctor: user.isDoctor,//
+      notification: user.notification.map((item) => { return item.message }),//dene çalışıyor mu
       token: generateToken(user._id)
     })
   } else {
@@ -59,20 +56,15 @@ const loginUser = asyncHandler(async (req, res) => {
 })
 
 // doktor başvuru 
-const applyDoctor = async (req, res) => {
+const applyDoctor = asyncWrapper(async (req, res) => {
 
   try {
-    console.log(req.body)
-
-    // id = req.body.userId;
-    const { userId, firstName, lastName, phone, specializationId } = req.body;
-
     if (!req.body) {
       res.status(400)
       throw new Error('there is no data')
     }
+    const { userId, firstName, lastName, phone, specializationId } = req.body;
 
-    // Kontrol edilecek alanları kontrol edin
     const newDoctor = new Doctor({
       firstName,
       lastName,
@@ -80,15 +72,11 @@ const applyDoctor = async (req, res) => {
       status: "pending",
     });
 
-    //console.log(newDoctor)
     const userProp = await User.findById(userId);
     const spelizProp = await Specialization.findById(specializationId);
-    // console.log(userProp)
-    // console.log(spelizProp)
 
     newDoctor.userId = userProp;
     newDoctor.specializationId = spelizProp;
-
     await newDoctor.save();
     //   const populatedDoctor = await Doctor.findOne({_id: newDoctor._id})
     //   .populate("specializationId")
@@ -102,30 +90,30 @@ const applyDoctor = async (req, res) => {
 
     // console.log(populatedDoctor);
 
+    const user = await User.findById(userId);
+    console.log(user)
+    if (!user) {
+      return res.status(404).send({
+        success: false,
+        message: "User Not Found",
+      });
+    }
+
+    notification = {
+      type: "apply-doctor-request",
+      message: `${newDoctor.firstName} ${newDoctor.lastName} Has Applied For A Doctor Account`,
+    };
+
+    user.notification.push(notification);
+    console.log(user.notification)
+    await user.save();
 
     res.status(201).send({
       success: true,
       message: "Doctor Account Applied Successfully",
     });
-    // Doctor.populate(specialization).execPopulate()
-    // const user = await User.findOne({ id });
-    // if (!user) {
-    //   return res.status(404).send({
-    //     success: false,
-    //     message: "User Not Found",
-    //   });
-    // }
-    // const notification = user.notification;
-    // notifcation.push({
-    //   type: "apply-doctor-request",
-    //   message: `${newDoctor.firstName} ${newDoctor.lastName} Has Applied For A Doctor Account`,
-    // });
-    // await User.findByIdAndUpdate(user._id, { notification });
-    // res.status(201).send({
-    //   success: true,
-    //   message: "Doctor Account Applied SUccessfully",
-    // });
-  } catch (error) {
+  }
+  catch (error) {
     console.log(error);
     res.status(500).send({
       success: false,
@@ -133,47 +121,7 @@ const applyDoctor = async (req, res) => {
       message: "Error WHile Applying For Doctor",
     });
   }
-};
-// const applyDoctor = async (req, res) => {
-//   try {
-//     console.log(req.body)
-//     const { userId, firstName, lastName } = req.body;
-
-//     // Kontrol edilecek alanları kontrol edin
-//     const newDoctor = await Doctor({ ...req.body, status: "pending" }); // admin onaylayacak
-//     await newDoctor.save();
-//     console.log(newDoctor);
-
-//     const user = await User.findOne({ _id: userId });
-//     if (!user) {
-//       return res.status(404).send({
-//         success: false,
-//         message: "User Not Found",
-//       });
-//     }
-
-//     // Bildirim oluştur
-//     const notification = user.notification;
-//     notification.push({
-//       type: "apply-doctor-request",
-//       message: `${firstName} ${lastName} Has Applied For A Doctor Account`,
-//     });
-
-//     await User.findByIdAndUpdate(user._id, { notification });
-
-//     res.status(201).send({
-//       success: true,
-//       message: "Doctor Account Applied Successfully",
-//     });
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).send({
-//       success: false,
-//       error,
-//       message: "Error While Applying For Doctor",
-//     });
-//   }
-// };
+})
 
 
 // Generate JWT
