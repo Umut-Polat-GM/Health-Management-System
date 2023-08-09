@@ -18,6 +18,19 @@ const registerServ = async (userData) => {
     console.log(error)
   }
 }
+const verifyEmailServ = async (userData) => {
+  try {
+    const response = await axios.post(API_URL + "verify-email", userData)
+  if (response.data) {
+    
+    localStorage.setItem('user', JSON.stringify(response.data))
+  }
+  return response.data
+  
+  } catch (error) {
+    console.log(error)
+  }
+}
 
 const doctorRegisterServ = async (userData,token) => {
   
@@ -59,7 +72,8 @@ const authService = {
   registerServ,
   logoutServ,
   loginServ,
-  doctorRegisterServ
+  doctorRegisterServ,
+  verifyEmailServ
 }
 
 export default authService

@@ -5,6 +5,7 @@ import Home from './components/Home';
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import DoctorRegister from './components/authentication/DoctorRegister';
+import VerifyPage from './pages/Verify';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
           <Route path='/register' element={<Register />} />
           <Route path='/' element={<Home />} />
           <Route path='/apply-doctor' element={<DoctorRegister />} />
+          <Route path='user/verify-email' element={<VerifyPage />} />
         </Routes>
       </div>
     </Router>
