@@ -4,18 +4,22 @@ const userSchema = new mongoose.Schema({
 
     username: {
         type: String,
-        required: true,
+        required: false,
     },
     email: {
         type: String,
-        required: true,
+        required: false,
         unique: true,//bir kişi tarafından kullanılır
     },
     password: {
         type: String,
-        required: true,
+        required: false,
     },
     isDoctor: {
+        type: Boolean,
+        default: false,
+    },
+    isVerified: {
         type: Boolean,
         default: false,
     },

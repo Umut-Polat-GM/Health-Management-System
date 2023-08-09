@@ -1,8 +1,7 @@
 import authService from './authService'
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 
-
-const user = localStorage.getItem('user')
+const user = JSON.parse(localStorage.getItem('user'))
 
 const initialState = {
   user: user ? user : null,
@@ -20,31 +19,47 @@ export const register = createAsyncThunk(
       const response = await authService.registerServ(userData)
       return response.data;
     } catch (error) {
-      const message =
-        (error.response &&
-          error.response.data &&
-          error.response.data.message) ||
-        error.message ||
-        error.toString()
-      // console.log("here")
-      return thunkAPI.rejectWithValue(message)
+    
+      return thunkAPI.rejectWithValue( error.toString())
     }
   }
 )
-export const doctorRegister = createAsyncThunk(
-  'auth/ApplyDoctorRegister',
+
+export const verifyEmail = createAsyncThunk(
+  'auth/verify-email',
   async (userData, thunkAPI) => {
     try {
-      const response = await authService.registerServ(userData, user.token)
+      const response = await authService.verifyEmailServ(userData)
       return response.data;
     } catch (error) {
-      const message =
-        (error.response &&
-          error.response.data &&
-          error.response.data.message) ||
-        error.message ||
-        error.toString()
-      return thunkAPI.rejectWithValue(message)
+    
+      return thunkAPI.rejectWithValue( error.toString())
+    }
+  }
+)
+
+export const verify = createAsyncThunk(
+  'auth/register',
+  async (userData, thunkAPI) => {
+    try {
+      const response = await authService.registerServ(userData)
+      return response.data;
+    } catch (error) {
+    
+      return thunkAPI.rejectWithValue( error.toString())
+    }
+  }
+)
+
+export const doctorRegister = createAsyncThunk(
+  'auth/apply-doctor',
+  async (userData, thunkAPI) => {
+    try {
+     return await authService.doctorRegisterServ(userData, user.token)//buraya user?.token yazılabilir kontrol et
+    }
+    catch (error) {     
+      console.log(error)
+      return thunkAPI.rejectWithValue( error.toString())
     }
   }
 )
@@ -52,13 +67,11 @@ export const doctorRegister = createAsyncThunk(
 // Login user
 export const login = createAsyncThunk('auth/login', async (userData, thunkAPI) => {
   try {
-    return await authService.loginServ(userData)
+    const response = await authService.loginServ(userData);
+    return response.data
   }
   catch (error) {
-    const message =
-      (error.response && error.response.data && error.response.data.message) ||
-      error.message ||
-      error.toString()
+    const message = `login işlemi başarısız oldu: ${error}`
     return thunkAPI.rejectWithValue(message)
   }
 })
@@ -123,6 +136,20 @@ export const authSlice = createSlice({
       .addCase(logout.fulfilled, (state) => {
         state.user = null
       })
+      // .addCase(verifyEmail.pending, (state) => {register işlemindeki stateler yeterli olacaktır
+      //   state.isLoading = true
+      // })
+      // .addCase(verifyEmail.fulfilled, (state, action) => {
+      //   state.isLoading = false
+      //   state.isSuccess = true
+      //   state.user = action.payload
+      // })
+      // .addCase(verifyEmail.rejected, (state, action) => {
+      //   state.isLoading = false
+      //   state.isError = true
+      //   state.message = action.payload
+      //   state.user = null
+      // })
   },
 })
 

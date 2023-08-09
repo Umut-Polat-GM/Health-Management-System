@@ -1,26 +1,52 @@
 import axios from 'axios'
 
+
 const API_URL = "http://localhost:3001/api/auths/"
-const user = localStorage.getItem('user')
+//const user = JSON.parse(localStorage.getItem('user'))
 
 // Register user
 const registerServ = async (userData) => {
-  const response = await axios.post(API_URL + "register", userData)
+  try {
+    const response = await axios.post(API_URL + "register", userData)
   if (response.data) {
-    localStorage.setItem('user', response.data)
+    
+    localStorage.setItem('user', JSON.stringify(response.data))
   }
   return response.data
+  
+  } catch (error) {
+    console.log(error)
+  }
+}
+const verifyEmailServ = async (userData) => {
+  try {
+    const response = await axios.post(API_URL + "verify-email", userData)
+  if (response.data) {
+    
+    localStorage.setItem('user', JSON.stringify(response.data))
+  }
+  return response.data
+  
+  } catch (error) {
+    console.log(error)
+  }
 }
 
 const doctorRegisterServ = async (userData,token) => {
-  const config = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }
-  const response = await axios.post(API_URL + "doctorApplyRegister",   { ...userData, userId: user._id }, config)
   
-  return response.data
+  try {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+    console.log(userData)
+    const response = await axios.post(API_URL + "apply-doctor", userData , config)
+    
+    return response.data
+  } catch (error) {
+    console.log("Doctor Register Error:", error);
+  }
 }
 // Login user
 const loginServ = async (userData) => {
@@ -28,13 +54,12 @@ const loginServ = async (userData) => {
     const response = await axios.post(API_URL + "login", userData)
 
     if (response.data) {
-      localStorage.setItem('user', response.data)
+      localStorage.setItem('user', JSON.stringify(response.data))
     }
     console.log(response.data)
     return response.data
   } catch (error) {
     console.log(error)
-
   }
 }
 
@@ -47,7 +72,8 @@ const authService = {
   registerServ,
   logoutServ,
   loginServ,
-  doctorRegisterServ
+  doctorRegisterServ,
+  verifyEmailServ
 }
 
 export default authService

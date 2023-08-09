@@ -28,21 +28,21 @@ const DoctorRegister = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
+    // email: '',
+    // password: '',
     firstName: "",
     lastName: "",
     phone: "",
-    specializId: "",//category yi biz belirleyelim buradan listeletip seçtirelim
+    specializationId: "",//category yi biz belirleyelim buradan listeletip seçtirelim
     status: "pending",
     userId: null,
-    img: ""
+    // img: ""
   });
 
   const [data, setData] = useState([])
   const [errors, setErrors] = useState({});
 
-  const { email, password, firstName, lastName, phone, specializId, status, img } = formData;
+  const { firstName, lastName, phone, specializationId, status } = formData;
 
   const { user, isLoading, isError, isSuccess, message } = useSelector(
     (state) => state.auth
@@ -66,9 +66,9 @@ const DoctorRegister = () => {
       toast.error(message);
     }
 
-    if (isSuccess || user) {
-      navigate('/');
-    }
+    // if (isSuccess || user) {
+    //   navigate('/');
+    // }
 
     dispatch(reset());
   }, [user, isError, isSuccess, message, navigate, dispatch]);
@@ -81,17 +81,15 @@ const DoctorRegister = () => {
   };
 
 
-
   const validationSchema = yup.object().shape({
     firstName: yup.string().required('firstname adı alanı boş bırakılamaz'),
     lastName: yup.string().required('lastname adı alanı boş bırakılamaz'),
-    email: yup.string().email('Geçersiz e-posta').required('E-posta alanı boş bırakılamaz'),
-    password: yup.string().required('Şifre alanı boş bırakılamaz'),
+    // email: yup.string().email('Geçersiz e-posta').required('E-posta alanı boş bırakılamaz'),
+   // password: yup.string().required('Şifre alanı boş bırakılamaz'),
     phone: yup.string().required('Telefon alanı boş bırakılamaz'),
-    specializId: yup.string().required('Uzmanlık alanı boş bırakılamaz'),
-    img: yup.mixed().required('Dosya alanı boş bırakılamaz')
+    specializationId: yup.string().required('Uzmanlık alanı boş bırakılamaz')
+    // img: yup.mixed().required('Dosya alanı boş bırakılamaz')
   });
-
 
 
   const onSubmit = (e) => {
@@ -100,7 +98,7 @@ const DoctorRegister = () => {
       .validate(formData, { abortEarly: false })
       .then(() => {
         const userData = {
-          email, password, firstName, lastName, phone, specializId, status, userId: null,
+            firstName, lastName, phone, specializationId, status, userId: null,
         };
         console.log(userData);
         dispatch(doctorRegister(userData));
@@ -144,7 +142,7 @@ const DoctorRegister = () => {
               name='firstName'
               value={firstName}
               onChange={onChange}
-              placeholder='Enter First Name'
+              placeholder='Enter FirstName'
               fullWidth
               required
             />
@@ -156,13 +154,13 @@ const DoctorRegister = () => {
               name='lastName'
               value={lastName}
               onChange={onChange}
-              placeholder='Enter email'
+              placeholder='Enter LastName'
               fullWidth
               required
             />
             {errors.lastName && <Typography color="error">{errors.lastName}</Typography>}
 
-            <TextField
+            {/* <TextField
               sx={{ marginTop: "0.7rem", marginBottom: "0.7rem" }}
               label='Email'
               name='email'
@@ -172,9 +170,9 @@ const DoctorRegister = () => {
               fullWidth
               required
             />
-            {errors.email && <Typography color="error">{errors.email}</Typography>}
+            {errors.email && <Typography color="error">{errors.email}</Typography>} */}
 
-            <TextField
+            {/* <TextField
               sx={{ marginTop: "0.7rem", marginBottom: "0.7rem" }}
               label='Password'
               name='password'
@@ -185,7 +183,7 @@ const DoctorRegister = () => {
               fullWidth
               required
             />
-            {errors.password && <Typography color="error">{errors.password}</Typography>}
+            {errors.password && <Typography color="error">{errors.password}</Typography>} */}
 
             <InputMask
               mask="(999)999-9999"
@@ -211,9 +209,9 @@ const DoctorRegister = () => {
             <FormControl fullWidth>
               <InputLabel >Uzmanlık</InputLabel>
               <Select
-                value={specializId}
+                value={specializationId}
                 label="Uzmanlık"
-                name="specializId"
+                name="specializationId"
                 onChange={onChange}
               >
                 {data.map((item) => (
@@ -227,7 +225,7 @@ const DoctorRegister = () => {
             {errors.specializId && <Typography color="error">{errors.specializId}</Typography>}
 
 
-            <TextField
+            {/* <TextField
               sx={{ marginTop: "1rem", marginBottom: "1rem" }}
               name='img'
               value={img}
@@ -238,7 +236,7 @@ const DoctorRegister = () => {
               type='file'
               accept='.jpg, .jpeg, .png, .gif, .pdf'
             />
-            {errors.img && <Typography color="error">{errors.img}</Typography>}
+            {errors.img && <Typography color="error">{errors.img}</Typography>} */}
 
 
             <Button type='submit' color='primary' variant="contained" style={btnstyle} fullWidth>Sign in</Button>
