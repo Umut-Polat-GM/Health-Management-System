@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import {  useNavigate  } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { register, reset } from '../../store/features/auth/authSlice';
 import Spinner from '../Spinner';
@@ -18,6 +18,8 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Navbar from '../Navbar';
 import AuthBackground from '../../assets/image/auth/AuthBackGround';
 
+
+
 const Register = () => {
   const [formData, setFormData] = useState({
     email: '',
@@ -25,6 +27,7 @@ const Register = () => {
     username: ""
   });
 
+  
   const { email, password, username } = formData;
 
   const navigate = useNavigate();
@@ -32,6 +35,8 @@ const Register = () => {
   const { user, isLoading, isError, isSuccess, message } = useSelector(
     (state) => state.auth
   );
+
+  console.log(isLoading)
 
   useEffect(() => {
     if (isError) {
@@ -71,6 +76,7 @@ const Register = () => {
           password,
         };
         dispatch(register(userData));
+        navigate(`/user/loading/${email}`);
       })
       .catch((error) => {
         const validationErrors = {};
@@ -134,6 +140,8 @@ const Register = () => {
               required
             />
             {errors.password && <Typography color="error">{errors.password}</Typography>}
+
+          
             {/* dosya yukleme kısmı<TextField
               sx={{ marginTop: "1rem", marginBottom: "1rem" }}
               
@@ -162,6 +170,8 @@ const Register = () => {
           </Paper>
         </form>
       </Grid>
+
+
     </>
   );
 }

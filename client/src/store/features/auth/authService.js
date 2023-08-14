@@ -8,10 +8,10 @@ const API_URL = "http://localhost:3001/api/auths/"
 const registerServ = async (userData) => {
   try {
     const response = await axios.post(API_URL + "register", userData)
-  if (response.data) {
+  // if (response.data) {
     
-    localStorage.setItem('user', JSON.stringify(response.data))
-  }
+  //   localStorage.setItem('user', JSON.stringify(response.data))
+  // }
   return response.data
   
   } catch (error) {
@@ -31,6 +31,27 @@ const verifyEmailServ = async (userData) => {
     console.log(error)
   }
 }
+const forgotPasswordServ = async (userData) => {
+  try {
+    const response = await axios.post(API_URL + "forgot-password", userData)
+
+  return response.data
+  
+  } catch (error) {
+    console.log(error)
+  }
+}
+const resetPasswordServ = async (userData) => {
+  try {
+    const response = await axios.post(API_URL + "reset-password", userData)
+
+  return response.data
+  
+  } catch (error) {
+    console.log(error)
+  }
+}
+
 
 const doctorRegisterServ = async (userData,token) => {
   
@@ -73,7 +94,9 @@ const authService = {
   logoutServ,
   loginServ,
   doctorRegisterServ,
-  verifyEmailServ
+  verifyEmailServ,
+  forgotPasswordServ,
+  resetPasswordServ
 }
 
 export default authService

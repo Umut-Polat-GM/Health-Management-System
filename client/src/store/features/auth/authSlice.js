@@ -37,12 +37,11 @@ export const verifyEmail = createAsyncThunk(
     }
   }
 )
-
-export const verify = createAsyncThunk(
-  'auth/register',
+export const forgotPassword = createAsyncThunk(
+  'auth/forgot-password',
   async (userData, thunkAPI) => {
     try {
-      const response = await authService.registerServ(userData)
+      const response = await authService.forgotPasswordServ(userData)
       return response.data;
     } catch (error) {
     
@@ -50,6 +49,31 @@ export const verify = createAsyncThunk(
     }
   }
 )
+export const resetPassword = createAsyncThunk(
+  'auth/reset-password',
+  async (userData, thunkAPI) => {
+    try {
+      const response = await authService.resetPasswordServ(userData)
+      return response.data;
+    } catch (error) {
+    
+      return thunkAPI.rejectWithValue( error.toString())
+    }
+  }
+)
+
+// export const verify = createAsyncThunk(
+//   'auth/register',
+//   async (userData, thunkAPI) => {
+//     try {
+//       const response = await authService.registerServ(userData)
+//       return response.data;
+//     } catch (error) {
+    
+//       return thunkAPI.rejectWithValue( error.toString())
+//     }
+//   }
+// )
 
 export const doctorRegister = createAsyncThunk(
   'auth/apply-doctor',
@@ -106,6 +130,32 @@ export const authSlice = createSlice({
         state.isError = true
         state.message = action.payload
         state.user = null
+      })
+      .addCase(forgotPassword.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(forgotPassword.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.message = `${action.payload} adresine şifre sıfırlama e-postası gönderildi`;
+      })
+      .addCase(forgotPassword.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+      })
+      .addCase(resetPassword.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(resetPassword.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.message = `${action.payload} için şifre sıfırlama başarılı`;
+      })
+      .addCase(resetPassword.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
       })
       .addCase(login.pending, (state) => {
         state.isLoading = true
