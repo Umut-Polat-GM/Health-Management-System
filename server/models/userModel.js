@@ -23,6 +23,12 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
+    verified:{
+        type : Date,
+    },
+    verificationToken: {//bu email verify işlemi için gerekli
+        type: String,
+    },
     notification: {
         type: Array,
         default: [],
@@ -30,7 +36,16 @@ const userSchema = new mongoose.Schema({
     seennotification: {
         type: Array,
         default: [],
-    }
+    },
+    /*alt kısımlar forgot password için zaman kontrolu için gerekli*/ 
+    passwordToken: {
+        type: String,
+        default: null,
+      },
+      passwordTokenExpirationDate: {
+        type: Date,
+        default: null,
+      },
 
 }, { timestamps: true })
 

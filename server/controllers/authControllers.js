@@ -4,7 +4,8 @@ const asyncHandler = require('express-async-handler')//try cache gerek kalmaz
 const User = require('../models/userModel.js')
 const Doctor = require('../models/doctorModel.js')
 const Specialization = require('../models/specializationModel.js')
-const  sendVerificationEmail  = require('../utils/sendVerificationEmail.js');
+const sendVerificationEmail = require('../utils/sendVerificationEmail.js');
+const crypto = require('crypto');
 
 const registerUser = asyncHandler(async (req, res) => {
   const { username, email, password } = req.body
@@ -17,20 +18,22 @@ const registerUser = asyncHandler(async (req, res) => {
   // Hash password
   const salt = await bcrypt.genSalt(10)
   const hashedPassword = await bcrypt.hash(password, salt)
+  const token = crypto.randomBytes(40).toString('hex');//burası email verify işlemi için gerekli
+
   // Create user
   const user = await User.create({
     username,
     email,
     password: hashedPassword,
+    verificationToken: token,//verify işlemi olduktan sonra "" olacak dbde /ama bunu clienta gönderip işlem yaptırıcaz
   })
-  const token = generateToken(user._id)
-  const origin = 'http://localhost:5173';
+
 
   await sendVerificationEmail({
     name: user.username,
     email: user.email,
-    verificationToken: token,
-    origin,
+    verificationToken: user.verificationToken,
+    origin: process.env.ORIGIN,
   });
 
   // if (user) {
@@ -46,35 +49,90 @@ const registerUser = asyncHandler(async (req, res) => {
 })
 const verifyEmail = asyncHandler(async (req, res) => {
   const { verificationToken, email } = req.body;
+
   const user = await User.findOne({ email });
 
   console.log(user);
-  
+
   if (!user) {
-    throw new CustomError.UnauthenticatedError('Verification Failed');
+    throw new Error('Verification Failed');
   }
 
-  // if (user.verificationToken !== verificationToken) {
-  //   throw new CustomError.UnauthenticatedError('Verification Failed');
-  // }
+  if (user.verificationToken !== verificationToken) {
+    throw new Error('Verification Token Failed');
+  }
 
-  user.isVerified = true;
+  user.isVerified = true
+  user.verified = Date.now();
+  user.verificationToken = '';
 
   await user.save();
 
   res.status(201).json({
-    name: user.username,
-    email: user.email,
-    token: verificationToken,
-    msg: 'Email Verified'
+    //buradaki token kaldırıldı clientta logine yonlendir oradan giriş yaptırılınca tokenı yazdır
+    message: 'Email Verified'
   });
 });
+const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+
+
+  const user = await User.findOne({ email });
+
+  if (user) {
+    const passwordToken = crypto.randomBytes(70).toString('hex');
+
+    await sendResetPasswordEmail({
+      name: user.username,
+      email: user.email,
+      token: passwordToken,
+      origin: process.env.ORIGIN,
+    });
+
+    const tenMinutes = 1000 * 60 * 10;
+    const passwordTokenExpirationDate = new Date(Date.now() + tenMinutes);
+
+    //güvenlik için zamanını da tutyoruz 10 dk sonra geçersiz olacak/ onaylandıktan sonra passwordtoken ve expiration date null olacak
+    user.passwordToken = createHash(passwordToken);
+    user.passwordTokenExpirationDate = passwordTokenExpirationDate;
+    await user.save();
+  }
+
+  res
+    .status(StatusCodes.OK)
+    .json({ message: 'Please check your email for reset password link' });
+};
+
+
+const resetPassword = async (req, res) => {
+  const { token, email, password } = req.body;
+  if (!token || !email || !password) {
+    throw new CustomError.BadRequestError('Please provide all values');
+  }
+  const user = await User.findOne({ email });
+
+  if (user) {
+    const currentDate = new Date();
+
+    if (
+      user.passwordToken === createHash(token) &&
+      user.passwordTokenExpirationDate > currentDate
+    ) {
+      user.password = password;
+      user.passwordToken = null;
+      user.passwordTokenExpirationDate = null;
+      await user.save();
+    }
+  }
+
+  res.send('reset password');
+};
 
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body
   const user = await User.findOne({ email })
 
-  if (user && (await bcrypt.compare(password, user.password))) {
+  if (user && user.isVerified && (await bcrypt.compare(password, user.password))) {
     res.status(201).json({
 
       name: user.username,
@@ -140,7 +198,8 @@ const applyDoctor = async (req, res) => {
 
     notification = {
       type: "apply-doctor-request",
-      message: `${newDoctor.firstName} ${newDoctor.lastName} Has Applied For A Doctor Account`,
+      message: `${newDoctor.firstName} ${newDoctor.lastName} Has Applied For A Doctor Account`,//şuan pendingte doktor onaylarsa isDoctor true olaac
+
     };
 
     user.notification.push(notification);
@@ -173,5 +232,7 @@ module.exports = {
   registerUser,
   loginUser,
   applyDoctor,
-  verifyEmail
+  verifyEmail,
+  forgotPassword,
+  resetPassword
 }

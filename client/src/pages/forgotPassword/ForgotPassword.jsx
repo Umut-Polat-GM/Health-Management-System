@@ -1,26 +1,21 @@
+import { useState, useEffect } from 'react';
+
+// import { Link } from 'react-router-dom';
+import AuthBackground from '../../assets/image/auth/AuthBackGround';
+import { useSelector, useDispatch } from 'react-redux';
+import { toast } from 'react-toastify';
+import { forgotPassword, reset } from '../../store/features/auth/authSlice';
+import Spinner from '../../components/Spinner';
+import * as yup from 'yup';
+import { useNavigate } from 'react-router-dom';
 import { Grid, Paper, Avatar, TextField, Button, Typography, Link } from '@mui/material';
 import LockResetIcon from '@mui/icons-material/LockReset';
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
-import Navbar from '../Navbar';
-import AuthBackground from '../../assets/image/auth/AuthBackGround';
-import { useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import { login, reset } from '../../store/features/auth/authSlice';
-import Spinner from '../Spinner';
-import * as yup from 'yup';
 
-const Login = () => {
-
+const ForgotPassword = () => {
+  
   const [errors, setErrors] = useState({});
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
+  const [email, setEmail] = useState('');
 
-  const { email, password } = formData;
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -39,30 +34,22 @@ const Login = () => {
     dispatch(reset());
   }, [user, isError, isSuccess, message, navigate, dispatch]);
 
-  const onChange = (e) => {
-    setFormData((prevState) => ({
-      ...prevState,
-      [e.target.name]: e.target.value,
-    }));
+  const handleChange = (e) => {
+    setEmail( e.target.value);
   };
 
   const validationSchema = yup.object().shape({
     email: yup.string().email('Geçersiz e-posta').required('E-posta alanı boş bırakılamaz'),
-    password: yup.string().required('Şifre alanı boş bırakılamaz').min(6, 'Şifre en az 6 karakter olmalıdır')
   });
 
   const onSubmit = (e) => {
     e.preventDefault();
 
     validationSchema
-      .validate(formData, { abortEarly: false })
+      .validate(email, { abortEarly: false })
       .then(() => {
-        const userData = {
-          email,
-          password,
-        };
         // console.log(userData)
-        dispatch(login(userData));
+        dispatch(forgotPassword(email));
 
       })
       .catch((error) => {
@@ -84,50 +71,34 @@ const Login = () => {
 
   return (
     <>
-      <Navbar />
-      <AuthBackground />
+     <AuthBackground />
       <Grid container justifyContent="center">
         <form onSubmit={onSubmit}>
 
           <Paper elevation={10} style={paperStyle}>
             <Grid align='center'>
               <Avatar style={avatarStyle}><LockResetIcon /></Avatar>
-              <h2></h2>
+              <h2>Forgot Password</h2>
             </Grid>
             <TextField
               sx={{ marginTop: '1rem' }}
               label='Email'
               name='email'
               value={email}
-              onChange={onChange}
+              onChange={handleChange}
               placeholder='Enter email'
               fullWidth
               required
             />
             {errors.email && <Typography color="error">{errors.email}</Typography>}
-            <TextField
-              sx={{ marginTop: '1rem' }}
-              label='Password'
-              name='password'
-              value={password}
-              onChange={onChange}
-              placeholder='Enter password'
-              type='password'
-              fullWidth
-              required
-            />
-            {errors.password && <Typography color="error">{errors.password}</Typography>}
-            <FormControlLabel
-              control={<Checkbox name="checkedB" color="primary" />}
-              label="Remember me"
-              sx={{ marginTop: '1rem' }}
-            />
+            
+           
             <Button type='submit' color='primary' variant="contained" style={btnstyle} fullWidth>
-              Sign Up
+              Password Reset
             </Button>
             <Typography sx={{ marginTop: '1rem' }}>
-              <Link href="/user/forgot-password">
-                Forgot password?
+              <Link href="/login">
+                Login Ekranına Dön
               </Link>
             </Typography>
             <Typography sx={{ marginTop: '1rem' }}>
@@ -142,6 +113,7 @@ const Login = () => {
       </Grid>
     </>
   );
-}
+};
 
-export default Login;
+
+export default ForgotPassword;
