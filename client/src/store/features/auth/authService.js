@@ -23,7 +23,7 @@ const verifyEmailServ = async (userData) => {
     const response = await axios.post(API_URL + "verify-email", userData)
   if (response.data) {
     
-    localStorage.setItem('user', JSON.stringify(response.data))
+  //  localStorage.setItem('user', JSON.stringify(response.data))
   }
   return response.data
   
@@ -34,7 +34,7 @@ const verifyEmailServ = async (userData) => {
 const forgotPasswordServ = async (userData) => {
   try {
     const response = await axios.post(API_URL + "forgot-password", userData)
-
+console.log(response.data)
   return response.data
   
   } catch (error) {
