@@ -23,8 +23,8 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
-    verified:{
-        type : Date,
+    verified: {
+        type: Date,
     },
     verificationToken: {//bu email verify işlemi için gerekli
         type: String,
@@ -37,16 +37,16 @@ const userSchema = new mongoose.Schema({
         type: Array,
         default: [],
     },
-    /*alt kısımlar forgot password için zaman kontrolu için gerekli*/ 
+    /*alt kısımlar forgot password için zaman kontrolu için gerekli*/
     passwordToken: {
         type: String,
         default: null,
-      },
-      passwordTokenExpirationDate: {
+    },
+    passwordTokenExpirationDate: {
         type: Date,
         default: null,
-      },
-
+    },
+    tokens: [{ type: Object }],//kullanıcı işlemleri login olduktan sonra tanımlanan ana token
 }, { timestamps: true })
 
 module.exports = mongoose.model("User", userSchema)

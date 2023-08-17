@@ -4,18 +4,27 @@ import { useState, useEffect } from 'react';
 import AuthBackground from '../../assets/image/auth/AuthBackGround';
 import { useSelector, useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
-import { resetPassword,reset } from '../../store/features/auth/authSlice';
+import { resetPassword, reset } from '../../store/features/auth/authSlice';
 import Spinner from '../../components/Spinner';
 import * as yup from 'yup';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Grid, Paper, Avatar, TextField, Button, Typography, Link } from '@mui/material';
 import LockResetIcon from '@mui/icons-material/LockReset';
+function useQuery() {
+  return new URLSearchParams(useLocation().search);
+}
 
 const ResetPassword = () => {
 
-  const [errors, setErrors] = useState({});
-  const [password, setPassword] = useState('');
+  const query = useQuery();
 
+  const [errors, setErrors] = useState({});
+  const [formData, setFormData] = useState({
+    password: '',
+    token: "",
+    email: "",
+  });
+  const { password } = formData;
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -28,14 +37,18 @@ const ResetPassword = () => {
     }
 
     if (isSuccess || user) {
-      navigate('/');
+      console.log(user)
+      // navigate('/');
     }
 
     dispatch(reset());
   }, [user, isError, isSuccess, message, navigate, dispatch]);
 
   const handleChange = (e) => {
-    setPassword(e.target.value);
+    setFormData((prevState) => ({
+      ...prevState,
+      [e.target.name]: e.target.value,
+    }));
   };
 
   const validationSchema = yup.object().shape({
@@ -46,10 +59,15 @@ const ResetPassword = () => {
     e.preventDefault();
 
     validationSchema
-      .validate(password, { abortEarly: false })
+      .validate(formData, { abortEarly: false })
       .then(() => {
+        const userData = {
+          password: password,
+          email: query.get('email'),
+          token: query.get('token'),
+        };
         // console.log(userData)
-        dispatch(resetPassword(password));
+        dispatch(resetPassword(userData));
 
       })
       .catch((error) => {

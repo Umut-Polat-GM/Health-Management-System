@@ -10,7 +10,7 @@ import NotFound from "./pages/notFound/NotFound"
 import Loading from './pages/loading/Loading';
 import ForgotPassword from './pages/forgotPassword/ForgotPassword';
 import ResetPassword from './pages/forgotPassword/ResetPassword';
-
+import Deneme from './pages/Deneme';
 function App() {
   return (
     <>
@@ -27,6 +27,7 @@ function App() {
           <Route path='/user/loading/:email' element={<Loading />} />
           <Route path='/user/forgot-password' element={<ForgotPassword />} />
           <Route path='/user/reset-password' element={<ResetPassword />} />
+          <Route path='/deneme' element={<Deneme />} />
         </Routes>
       </div>
     </Router>

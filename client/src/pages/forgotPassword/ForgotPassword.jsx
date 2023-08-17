@@ -11,12 +11,14 @@ import { useNavigate } from 'react-router-dom';
 import { Grid, Paper, Avatar, TextField, Button, Typography, Link } from '@mui/material';
 import LockResetIcon from '@mui/icons-material/LockReset';
 
-const ForgotPassword = () => {
-  
+const ForgotPassword = () => {///form yerine Paper kullan
+
   const [errors, setErrors] = useState({});
-  const [email, setEmail] = useState('');
+  const [formData, setFormData] = useState({
+    email: '',
+  });
 
-
+  const { email } = formData;
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { user, isLoading, isError, isSuccess, message } = useSelector((state) => state.auth);
@@ -28,14 +30,18 @@ const ForgotPassword = () => {
     }
 
     if (isSuccess || user) {
-      navigate('/');
+      console.log(user)
+      // navigate('/');
     }
 
     dispatch(reset());
   }, [user, isError, isSuccess, message, navigate, dispatch]);
 
   const handleChange = (e) => {
-    setEmail( e.target.value);
+    setFormData((prevState) => ({
+      ...prevState,
+      [e.target.name]: e.target.value,
+    }));
   };
 
   const validationSchema = yup.object().shape({
@@ -44,12 +50,14 @@ const ForgotPassword = () => {
 
   const onSubmit = (e) => {
     e.preventDefault();
-
     validationSchema
-      .validate(email, { abortEarly: false })
+      .validate(formData, { abortEarly: false })
       .then(() => {
-        // console.log(userData)
-        dispatch(forgotPassword(email));
+        const userData = {
+          email: email,
+        };
+
+        dispatch(forgotPassword(userData));
 
       })
       .catch((error) => {
@@ -71,7 +79,7 @@ const ForgotPassword = () => {
 
   return (
     <>
-     <AuthBackground />
+      <AuthBackground />
       <Grid container justifyContent="center">
         <form onSubmit={onSubmit}>
 
@@ -91,8 +99,8 @@ const ForgotPassword = () => {
               required
             />
             {errors.email && <Typography color="error">{errors.email}</Typography>}
-            
-           
+
+
             <Button type='submit' color='primary' variant="contained" style={btnstyle} fullWidth>
               Password Reset
             </Button>

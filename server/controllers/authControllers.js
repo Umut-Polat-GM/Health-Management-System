@@ -1,19 +1,22 @@
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
-const asyncHandler = require('express-async-handler')//try cache gerek kalmaz
+const asyncErrorHandler = require('../middlewares/asyncErrorHandler')//try cache gerek kalmaz
 const User = require('../models/userModel.js')
 const Doctor = require('../models/doctorModel.js')
 const Specialization = require('../models/specializationModel.js')
 const sendVerificationEmail = require('../utils/sendVerificationEmail.js');
+const sendResetPasswordEmail = require('../utils/sendResetPasswordEmail.js');
+const CustomError = require('../errors');
 const crypto = require('crypto');
+const { StatusCodes } = require('http-status-codes');
+const createHash = require('../utils/createHash');
 
-const registerUser = asyncHandler(async (req, res) => {
+const registerUser = asyncErrorHandler(async (req, res) => {
   const { username, email, password } = req.body
 
-  const userExists = await User.findOne({ email })
-  if (userExists) {
-    res.status(400)
-    throw new Error('User already exists')
+  const emailAlreadyExists = await User.findOne({ email })
+  if (emailAlreadyExists) {
+    throw new CustomError.BadRequestError('Email already exists');
   }
   // Hash password
   const salt = await bcrypt.genSalt(10)
@@ -46,8 +49,12 @@ const registerUser = asyncHandler(async (req, res) => {
   //   res.status(400)
   //   throw new Error('Invalid user data')
   // }
+  res.status(StatusCodes.CREATED).json({
+    msg: 'Success! Please check your email to verify account',
+  });
 })
-const verifyEmail = asyncHandler(async (req, res) => {
+
+const verifyEmail = asyncErrorHandler(async (req, res) => {
   const { verificationToken, email } = req.body;
 
   const user = await User.findOne({ email });
@@ -55,11 +62,11 @@ const verifyEmail = asyncHandler(async (req, res) => {
   console.log(user);
 
   if (!user) {
-    throw new Error('Verification Failed');
+    throw new CustomError.UnauthenticatedError("Verification Failed")
   }
 
   if (user.verificationToken !== verificationToken) {
-    throw new Error('Verification Token Failed');
+    throw new CustomError.UnauthenticatedError('Verification Failed');
   }
 
   user.isVerified = true
@@ -68,14 +75,16 @@ const verifyEmail = asyncHandler(async (req, res) => {
 
   await user.save();
 
-  res.status(201).json({
-    //buradaki token kaldırıldı clientta logine yonlendir oradan giriş yaptırılınca tokenı yazdır
-    message: 'Email Verified'
-  });
+  res.status(StatusCodes.OK).json({ msg: 'Email Verified' });
+
 });
-const forgotPassword = async (req, res) => {
+
+const forgotPassword = asyncErrorHandler(async (req, res) => {
   const { email } = req.body;
 
+  if (!email) {
+    throw new CustomError.BadRequestError('Please provide valid email');
+  }
 
   const user = await User.findOne({ email });
 
@@ -101,19 +110,23 @@ const forgotPassword = async (req, res) => {
   res
     .status(StatusCodes.OK)
     .json({ message: 'Please check your email for reset password link' });
-};
+});
 
+const resetPassword = asyncErrorHandler(async (req, res) => {
+  const { token, email, password } = req.body;//token kontrolu yapılmalı
 
-const resetPassword = async (req, res) => {
-  const { token, email, password } = req.body;
   if (!token || !email || !password) {
     throw new CustomError.BadRequestError('Please provide all values');
   }
+
   const user = await User.findOne({ email });
+  const isPasswordCorrect = await bcrypt.compare(password, user.password);
+  if (isPasswordCorrect) {
+    throw new CustomError.BadRequestError('Please provide different password');
+  }
 
   if (user) {
     const currentDate = new Date();
-
     if (
       user.passwordToken === createHash(token) &&
       user.passwordTokenExpirationDate > currentDate
@@ -126,29 +139,73 @@ const resetPassword = async (req, res) => {
   }
 
   res.send('reset password');
-};
+});
 
-const loginUser = asyncHandler(async (req, res) => {
+const loginUser = asyncErrorHandler(async (req, res) => {
   const { email, password } = req.body
-  const user = await User.findOne({ email })
 
-  if (user && user.isVerified && (await bcrypt.compare(password, user.password))) {
-    res.status(201).json({
+  if (!email || !password) {
+    throw new CustomError.BadRequestError('Please provide email and password');
+  }
 
-      name: user.username,
-      email: user.email,
-      isDoctor: user.isDoctor,//
-      notification: user.notification.map((item) => { return item.message }),//dene çalışıyor mu
-      token: generateToken(user._id)
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw new CustomError.UnauthenticatedError('Invalid Credentials');
+  }
+  const isPasswordCorrect = await bcrypt.compare(password, user.password);
+
+
+  if (!user.isVerified) {
+    throw new Error('Please verify your email');//burada işlem yaptırılacak
+  }
+
+  if (isPasswordCorrect) {
+    const user = await User.findOne({ email }, "-password") //"password" alanını çıkarmayı amaçlar
+    const token = await generateToken(user._id);
+    if (!token) {
+      throw new CustomError.UnauthenticatedError('Authentication Invalid');
+    }
+    let oldTokens = user.tokens || [];
+    if (oldTokens.length) {
+      oldTokens.filter(t => {
+        const timeDiff = (Date.now() - parseInt(t.signedAt)) / 1000;
+        if (timeDiff < 86400) {
+          return t;
+        }
+      })
+    }
+    await User.findByIdAndUpdate(user._id, { tokens: [...oldTokens, { token, signedAt: Date.now().toString() }] })
+    res.status(StatusCodes.OK).json({
+      succedd: true,
+      token,
+      user,
+      message: "Successfully sign-in",
+
     })
   } else {
-    res.status(400)
-    throw new Error('Invalid credentials')
+    throw new AppError("Passwords are not matched", 401)
   }
+
+  // const { email, password } = req.body
+  // const user = await User.findOne({ email })
+
+  // if (user && user.isVerified && (await bcrypt.compare(password, user.password))) {
+  //   res.status(201).json({
+
+  //     name: user.username,
+  //     email: user.email,
+  //     isDoctor: user.isDoctor,//
+  //     notification: user.notification.map((item) => { return item.message }),//dene çalışıyor mu
+  //     token: generateToken(user._id)
+  //   })
+  // } else {
+  //   res.status(400)
+  //   throw new Error('Invalid credentials')
+  // }
 })
 
 // doktor başvuru 
-const applyDoctor = async (req, res) => {
+const applyDoctor = asyncErrorHandler(async (req, res) => {
 
   try {
     if (!req.body) {
@@ -219,7 +276,7 @@ const applyDoctor = async (req, res) => {
       message: "Error WHile Applying For Doctor",
     });
   }
-};
+});
 
 // Generate JWT
 const generateToken = (id) => {
