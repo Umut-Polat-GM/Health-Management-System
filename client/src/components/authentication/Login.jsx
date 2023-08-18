@@ -12,6 +12,8 @@ import { login, reset } from '../../store/features/auth/authSlice';
 import Spinner from '../Spinner';
 import * as yup from 'yup';
 
+
+
 const Login = () => {
 
   const [errors, setErrors] = useState({});
@@ -63,7 +65,6 @@ const Login = () => {
         };
         // console.log(userData)
         dispatch(login(userData));
-
       })
       .catch((error) => {
         const validationErrors = {};
@@ -83,9 +84,8 @@ const Login = () => {
   const btnstyle = { margin: '8px 0' };
 
   return (
-    <>
-      <Navbar />
-      <AuthBackground />
+    <><Navbar/>
+     {isLoading ? <Spinner /> : <> <AuthBackground />
       <Grid container justifyContent="center">
         <form onSubmit={onSubmit}>
 
@@ -139,7 +139,8 @@ const Login = () => {
           </Paper>
 
         </form>
-      </Grid>
+      </Grid></>}
+      
     </>
   );
 }

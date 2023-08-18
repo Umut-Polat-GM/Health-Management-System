@@ -11,6 +11,9 @@ import Loading from './pages/loading/Loading';
 import ForgotPassword from './pages/forgotPassword/ForgotPassword';
 import ResetPassword from './pages/forgotPassword/ResetPassword';
 import Deneme from './pages/Deneme';
+import PasswordReset from './pages/info/PasswordResetInfo';
+import EmailVerify from './pages/info/EmailVerifyInfo';
+
 function App() {
   return (
     <>
@@ -24,9 +27,11 @@ function App() {
           <Route path='/apply-doctor' element={<DoctorRegister />} />
           <Route path='/user/verify-email' element={<VerifyPage />} />
           <Route path='*' element={<NotFound />} />
-          <Route path='/user/loading/:email' element={<Loading />} />
           <Route path='/user/forgot-password' element={<ForgotPassword />} />
           <Route path='/user/reset-password' element={<ResetPassword />} />
+          <Route path='/user/loading' element={<Loading />} />
+          <Route path='/user/password-reset/:email' element={<PasswordReset />} />
+          <Route path='/user/email-verify/:email' element={<EmailVerify />} />
           <Route path='/deneme' element={<Deneme />} />
         </Routes>
       </div>

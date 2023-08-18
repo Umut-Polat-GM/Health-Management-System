@@ -76,7 +76,7 @@ const Register = () => {
           password,
         };
         dispatch(register(userData));
-        navigate(`/user/loading/${email}`);
+        navigate(`/user/email-verify/${email}`);
       })
       .catch((error) => {
         const validationErrors = {};
