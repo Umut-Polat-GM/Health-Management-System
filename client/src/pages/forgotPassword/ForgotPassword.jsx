@@ -58,7 +58,7 @@ const ForgotPassword = () => {///form yerine Paper kullan
         };
 
         dispatch(forgotPassword(userData));
-
+        navigate(`/user/password-reset/${email}`);
       })
       .catch((error) => {
         const validationErrors = {};

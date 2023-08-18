@@ -1,12 +1,29 @@
-import {  useParams } from 'react-router-dom'
 import AuthBackground from '../../assets/image/auth/AuthBackGround'
+import ClipLoader from "react-spinners/ClipLoader";
 const Loading = () => {
-  const {email} = useParams()
+  
+
+  const override = `
+  text-align: center,
+  display: flex,
+  justify-content: center,
+  align-items: center,
+  width: 100%,
+  height: 100vh,
+  `;
+
   return (
+ 
     <>
     <AuthBackground />
 
-<div>lütfen {email} adresinize gelen maili onaylayınız</div>
+    <ClipLoader
+        color={"#36d7b7"}
+        cssOverride={override}
+        size={150}
+        aria-label="Loading Spinner"
+        data-testid="loader"
+      />
 </>
   )
 }

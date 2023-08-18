@@ -24,7 +24,7 @@ const registerUser = asyncErrorHandler(async (req, res) => {
   const token = crypto.randomBytes(40).toString('hex');//burası email verify işlemi için gerekli
 
   // Create user
-  const user = await User.create({
+  const user = await User({
     username,
     email,
     password: hashedPassword,
@@ -39,16 +39,7 @@ const registerUser = asyncErrorHandler(async (req, res) => {
     origin: process.env.ORIGIN,
   });
 
-  // if (user) {
-  //   res.status(201).json({
-  //     name: user.username,
-  //     email: user.email,
-  //     token: token,
-  //   })
-  // } else {
-  //   res.status(400)
-  //   throw new Error('Invalid user data')
-  // }
+  await user.save()
   res.status(StatusCodes.CREATED).json({
     msg: 'Success! Please check your email to verify account',
   });
@@ -183,7 +174,10 @@ const loginUser = asyncErrorHandler(async (req, res) => {
 
     })
   } else {
-    throw new AppError("Passwords are not matched", 401)
+    res.status(StatusCodes.BAD_REQUEST).json({
+      succeded:false,
+      message:"Şifrenizi tekrardan giriniz"
+    })
   }
 
   // const { email, password } = req.body
