@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { toast } from 'react-toastify'
 
 
 const API_URL = "http://localhost:3001/api/auths/"
@@ -73,7 +74,9 @@ const doctorRegisterServ = async (userData,token) => {
 const loginServ = async (userData) => {
   try {
     const response = await axios.post(API_URL + "login", userData)
-
+    if(response.data.verifyError){
+      return toast.info("Mail adresinize gelen doğrulama işlemi için linke tıklayınız ve tekrar giriş yapınız.")
+    }
     if (response.data) {
       localStorage.setItem('user', JSON.stringify(response.data))
     }
