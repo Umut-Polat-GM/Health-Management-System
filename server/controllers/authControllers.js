@@ -41,7 +41,7 @@ const registerUser = asyncErrorHandler(async (req, res) => {
 
   await user.save()
   res.status(StatusCodes.CREATED).json({
-    msg: 'Success! Please check your email to verify account',
+    message: 'Success! Please check your email to verify account',
   });
 })
 
@@ -69,7 +69,85 @@ const verifyEmail = asyncErrorHandler(async (req, res) => {
   res.status(StatusCodes.OK).json({ msg: 'Email Verified' });
 
 });
+const loginUser = asyncErrorHandler(async (req, res) => {
+  const { email, password } = req.body
 
+  if (!email || !password) {
+    throw new CustomError.BadRequestError('Please provide email and password');
+  }
+
+  const user = await User.findOne({ email } );
+  if (!user) {
+    throw new CustomError.UnauthenticatedError('Invalid Credentials');
+  }
+  const isPasswordCorrect = await bcrypt.compare(password, user.password);
+
+  if (isPasswordCorrect) {
+    if (!user.isVerified) {
+      const token = crypto.randomBytes(40).toString('hex');//burası email verify işlemi için gerekli
+      user.verificationToken = token;
+      await user.save();
+      console.log("----------");
+      console.log(user.verificationToken+"----------");
+      await sendVerificationEmail({
+        name: user.username,
+        email: user.email,
+        verificationToken: user.verificationToken,
+        origin: process.env.ORIGIN,
+      });
+      return res.status(StatusCodes.OK).json({
+        success: true,
+        verifyError:true,
+        message: "Hesabınız doğrulanmamıştır. Lütfen mail adresinize gönderilen doğrulama bağlantısını kullanarak hesabınızı doğrulayınız.",
+      });
+      }
+
+
+    //"password" alanını çıkarmayı amaçlar
+    const token = await generateToken(user._id);
+    if (!token) {
+      throw new CustomError.UnauthenticatedError('Authentication Invalid');
+    }
+    let oldTokens = user.tokens || [];
+    if (oldTokens.length) {
+      oldTokens.filter(t => {
+        const timeDiff = (Date.now() - parseInt(t.signedAt)) / 1000;
+        if (timeDiff < 86400) {
+          return t;
+        }
+      })
+    }
+    await User.findByIdAndUpdate(user._id, { tokens: [...oldTokens, { token, signedAt: Date.now().toString() }] })
+    res.status(StatusCodes.OK).json({
+      succedd: true,
+      token,
+      user,
+      message: "Successfully sign-in",
+    })
+  } else {
+    res.status(StatusCodes.BAD_REQUEST).json({
+      succeded:false,
+      message:"Şifrenizi tekrardan giriniz"
+    })
+  }
+
+  // const { email, password } = req.body
+  // const user = await User.findOne({ email })
+
+  // if (user && user.isVerified && (await bcrypt.compare(password, user.password))) {
+  //   res.status(201).json({
+
+  //     name: user.username,
+  //     email: user.email,
+  //     isDoctor: user.isDoctor,//
+  //     notification: user.notification.map((item) => { return item.message }),//dene çalışıyor mu
+  //     token: generateToken(user._id)
+  //   })
+  // } else {
+  //   res.status(400)
+  //   throw new Error('Invalid credentials')
+  // }
+})
 const forgotPassword = asyncErrorHandler(async (req, res) => {
   const { email } = req.body;
 
@@ -132,71 +210,7 @@ const resetPassword = asyncErrorHandler(async (req, res) => {
   res.send('reset password');
 });
 
-const loginUser = asyncErrorHandler(async (req, res) => {
-  const { email, password } = req.body
 
-  if (!email || !password) {
-    throw new CustomError.BadRequestError('Please provide email and password');
-  }
-
-  const user = await User.findOne({ email });
-  if (!user) {
-    throw new CustomError.UnauthenticatedError('Invalid Credentials');
-  }
-  const isPasswordCorrect = await bcrypt.compare(password, user.password);
-
-
-  if (!user.isVerified) {
-    throw new Error('Please verify your email');//burada işlem yaptırılacak
-  }
-
-  if (isPasswordCorrect) {
-    const user = await User.findOne({ email }, "-password") //"password" alanını çıkarmayı amaçlar
-    const token = await generateToken(user._id);
-    if (!token) {
-      throw new CustomError.UnauthenticatedError('Authentication Invalid');
-    }
-    let oldTokens = user.tokens || [];
-    if (oldTokens.length) {
-      oldTokens.filter(t => {
-        const timeDiff = (Date.now() - parseInt(t.signedAt)) / 1000;
-        if (timeDiff < 86400) {
-          return t;
-        }
-      })
-    }
-    await User.findByIdAndUpdate(user._id, { tokens: [...oldTokens, { token, signedAt: Date.now().toString() }] })
-    res.status(StatusCodes.OK).json({
-      succedd: true,
-      token,
-      user,
-      message: "Successfully sign-in",
-
-    })
-  } else {
-    res.status(StatusCodes.BAD_REQUEST).json({
-      succeded:false,
-      message:"Şifrenizi tekrardan giriniz"
-    })
-  }
-
-  // const { email, password } = req.body
-  // const user = await User.findOne({ email })
-
-  // if (user && user.isVerified && (await bcrypt.compare(password, user.password))) {
-  //   res.status(201).json({
-
-  //     name: user.username,
-  //     email: user.email,
-  //     isDoctor: user.isDoctor,//
-  //     notification: user.notification.map((item) => { return item.message }),//dene çalışıyor mu
-  //     token: generateToken(user._id)
-  //   })
-  // } else {
-  //   res.status(400)
-  //   throw new Error('Invalid credentials')
-  // }
-})
 
 // doktor başvuru 
 const applyDoctor = asyncErrorHandler(async (req, res) => {

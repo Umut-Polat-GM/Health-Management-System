@@ -92,6 +92,7 @@ export const doctorRegister = createAsyncThunk(
 export const login = createAsyncThunk('auth/login', async (userData, thunkAPI) => {
   try {
     const response = await authService.loginServ(userData);
+    
     return response.data
   }
   catch (error) {

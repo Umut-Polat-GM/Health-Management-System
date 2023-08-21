@@ -71,13 +71,14 @@ const Login = () => {
         error.inner.forEach((err) => {
           validationErrors[err.path] = err.message;
         });
+      //  if(verifyError){
+      //   return toast.error(error.message)
+      //  }
         setErrors(validationErrors);
       });
   };
 
-  if (isLoading) {
-    return <Spinner />;
-  }
+  
 
   const paperStyle = { padding: 20, height: 'auto', width: '90%', maxWidth: 400, margin: '5rem auto' };
   const avatarStyle = { backgroundColor: '#1bbd7e' };
