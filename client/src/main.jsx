@@ -8,11 +8,11 @@ import { ThemeProvider } from "@mui/material";
 import { theme } from "./theme.js";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
+  <React.Fragment>
     <Provider store={store}>
       <ThemeProvider theme={theme}>
         <App />
       </ThemeProvider>
     </Provider>
-  </React.StrictMode>
+  </React.Fragment>
 );
